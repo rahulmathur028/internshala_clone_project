@@ -2,7 +2,7 @@ const mongoose = require("mongoose");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 
-const studentModel = new mongoose.Schema(
+const employeModel = new mongoose.Schema(
   {
     firstname: {
       type: String,
@@ -20,12 +20,7 @@ const studentModel = new mongoose.Schema(
       maxLength: [10, "Contact must not exceed 10 character"],
       minLength: [10, "Contact should be atleast 10 character"],
     },
-    city: {
-      type: String,
-      required: [true, "City is required"],
-      minLength: [3, "City should be atleast 3 character"],
-    },
-    gender: {type: String, enum: ["Male", "Female", "Other"]},
+
     email: {
       type: String,
       unique: true,
@@ -46,22 +41,17 @@ const studentModel = new mongoose.Schema(
       type: String,
       default: "0",
     },
-    avatar: {
+    organizationname: {
+      type: String,
+      required: [true, "Organization Name is required"],
+      minLength: [4, "Organization Name should be of 4 characters"],
+    },
+    organizationlogo: {
       type: Object,
       default: {
         fileId: "",
         url: "https://media.istockphoto.com/id/1407691632/photo/mannequin-of-man-white-head-figure-of-man.webp?b=1&s=170667a&w=0&k=20&c=KLYJYE-vmqjiI2rGxYJkgoadBUZno4hX65GYvcvFY38=",
       },
-    },
-    resume: {
-      education: [],
-      jobs: [],
-      internships: [],
-      responsibilities: [],
-      courses: [],
-      projects: [],
-      skills: [],
-      accomplishments: [],
     },
     internships: [{type: mongoose.Schema.Types.ObjectId, ref: "internship"}],
     jobs: [{type: mongoose.Schema.Types.ObjectId, ref: "job"}],
@@ -70,7 +60,7 @@ const studentModel = new mongoose.Schema(
   {timestamps: true}
 );
 
-studentModel.pre("save", function () {
+employeModel.pre("save", function () {
   if (!this.isModified("password")) {
     return;
   }
@@ -79,15 +69,15 @@ studentModel.pre("save", function () {
   this.password = bcrypt.hashSync(this.password, salt);
 });
 
-studentModel.methods.comparepassword = function (password) {
+employeModel.methods.comparepassword = function (password) {
   return bcrypt.compareSync(password, this.password);
 };
 
-studentModel.methods.getjwttoken = function () {
+employeModel.methods.getjwttoken = function () {
   return jwt.sign({id: this._id}, process.env.JWT_SECRET, {
     expiresIn: process.env.JWT_EXPIRE,
   });
 };
 
-const Student = mongoose.model("student", studentModel);
-module.exports = Student;
+const Employe = mongoose.model("employe", employeModel);
+module.exports = Employe;
